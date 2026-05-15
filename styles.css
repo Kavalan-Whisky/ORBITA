@@ -1,0 +1,1014 @@
+/* ============================================================
+   ORBITA
+   An interactive guide to the solar system.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&display=swap');
+
+:root {
+  --void: #050714;
+  --space: #0a0e1f;
+  --deep: #131a30;
+  --hull: #1f2748;
+  --star: #f4f1e8;
+  --star-dim: #b8b5ac;
+  --star-faint: #6e6b62;
+  --plasma: #ff7a45;
+  --ice: #4fb8d8;
+  --gold: #f0c14a;
+  --rust: #c54a2c;
+  --olive: #b8a040;
+  --jade: #5ec494;
+  --cobalt: #4a6dd8;
+
+  --f-sans: 'Space Grotesk', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --f-serif: 'Fraunces', Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--star);
+  font-family: var(--f-sans);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+::selection { background: var(--plasma); color: var(--void); }
+
+/* Star field background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 23% 47%, var(--star) 0%, transparent 100%),
+    radial-gradient(2px 2px at 38% 23%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 71%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 56% 84%, var(--star) 0%, transparent 100%),
+    radial-gradient(2px 2px at 68% 12%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 56%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 84% 78%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 32%, var(--star) 0%, transparent 100%),
+    radial-gradient(2px 2px at 8% 92%, var(--star) 0%, transparent 100%),
+    radial-gradient(1px 1px at 17% 64%, var(--star-dim) 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 88%, var(--star-dim) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 9%, var(--star-dim) 0%, transparent 100%),
+    radial-gradient(1px 1px at 61% 38%, var(--star-dim) 0%, transparent 100%),
+    radial-gradient(1px 1px at 79% 92%, var(--star-dim) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 65%, var(--star-dim) 0%, transparent 100%);
+  background-size: 800px 800px;
+  background-repeat: repeat;
+  opacity: 0.7;
+  animation: stars 60s linear infinite;
+}
+
+@keyframes stars {
+  to { background-position: 800px 800px; }
+}
+
+/* Nebula layer */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 75% 25%, rgba(74, 109, 216, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 25% 75%, rgba(255, 122, 69, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(94, 196, 148, 0.04) 0%, transparent 70%);
+}
+
+a { color: inherit; text-decoration: none; }
+
+main, header, section, footer { position: relative; z-index: 1; }
+
+/* =========================================================
+   Top bar
+   ========================================================= */
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.4rem 2.5rem;
+  background: linear-gradient(180deg, rgba(5, 7, 20, 0.95), rgba(5, 7, 20, 0.5) 80%, transparent);
+  font-family: var(--f-mono);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.3em;
+  font-weight: 500;
+}
+
+.nav-brand .glyph {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  position: relative;
+}
+
+.nav-brand .glyph::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  opacity: 0.4;
+  transform: scale(1.2);
+}
+
+.nav-brand .glyph::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--star-dim);
+  transition: all 0.3s;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 4rem;
+  padding: 8rem 2.5rem 4rem;
+  position: relative;
+}
+
+.hero-left .eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  font-family: var(--f-serif);
+  font-size: clamp(4rem, 9vw, 8rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+}
+
+.hero-title .italic { font-style: italic; color: var(--gold); }
+
+.hero-sub {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.45rem;
+  color: var(--star-dim);
+  line-height: 1.5;
+  margin-bottom: 2.5rem;
+  max-width: 32rem;
+}
+
+.hero-coords {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem 2.5rem;
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--hull);
+  max-width: 32rem;
+}
+
+.hero-coords dt {
+  color: var(--star-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.hero-coords dd {
+  color: var(--star);
+}
+
+.hero-coords dd .accent { color: var(--ice); }
+
+.hero-cta {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.8rem;
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--star);
+  border: 1px solid var(--star-dim);
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+}
+
+.btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(240, 193, 74, 0.05);
+  box-shadow: 0 0 20px rgba(240, 193, 74, 0.2);
+}
+
+.btn.primary {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn.primary:hover {
+  background: var(--gold);
+  color: var(--void);
+}
+
+/* =========================================================
+   Hero orbit visualization
+   ========================================================= */
+
+.orbit-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-stage svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sun-core {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff5d0 0%, var(--gold) 35%, var(--plasma) 70%, var(--rust) 100%);
+  box-shadow:
+    0 0 40px var(--gold),
+    0 0 80px var(--plasma),
+    0 0 120px rgba(255, 122, 69, 0.4);
+  animation: pulseSun 4s ease-in-out infinite;
+  z-index: 5;
+}
+
+@keyframes pulseSun {
+  0%, 100% { box-shadow: 0 0 40px var(--gold), 0 0 80px var(--plasma), 0 0 120px rgba(255, 122, 69, 0.4); }
+  50% { box-shadow: 0 0 50px var(--gold), 0 0 100px var(--plasma), 0 0 140px rgba(255, 122, 69, 0.5); }
+}
+
+.orbit-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  border: 1px solid var(--hull);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.orbit-1 { width: 22%; height: 22%; animation: spin 14s linear infinite; }
+.orbit-2 { width: 32%; height: 32%; animation: spin 20s linear infinite; }
+.orbit-3 { width: 44%; height: 44%; animation: spin 28s linear infinite; }
+.orbit-4 { width: 56%; height: 56%; animation: spin 40s linear infinite; }
+.orbit-5 { width: 70%; height: 70%; animation: spin 60s linear infinite; }
+.orbit-6 { width: 82%; height: 82%; animation: spin 90s linear infinite; }
+.orbit-7 { width: 92%; height: 92%; animation: spin 130s linear infinite; }
+.orbit-8 { width: 100%; height: 100%; animation: spin 180s linear infinite; }
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.planet-marker {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+}
+
+.orbit-1 .planet-marker { width: 8px; height: 8px; background: #b8a98e; }
+.orbit-2 .planet-marker { width: 12px; height: 12px; background: #e8b15e; box-shadow: 0 0 8px rgba(232, 177, 94, 0.6); }
+.orbit-3 .planet-marker { width: 14px; height: 14px; background: var(--cobalt); box-shadow: 0 0 10px rgba(74, 109, 216, 0.6); }
+.orbit-4 .planet-marker { width: 10px; height: 10px; background: var(--rust); }
+.orbit-5 .planet-marker { width: 22px; height: 22px; background: linear-gradient(135deg, #d4a268 0%, #b8845a 50%, #8c6448 100%); box-shadow: 0 0 12px rgba(212, 162, 104, 0.4); }
+.orbit-6 .planet-marker { width: 18px; height: 18px; background: var(--olive); box-shadow: 0 0 10px rgba(184, 160, 64, 0.4); }
+.orbit-7 .planet-marker { width: 14px; height: 14px; background: var(--ice); box-shadow: 0 0 8px rgba(79, 184, 216, 0.5); }
+.orbit-8 .planet-marker { width: 13px; height: 13px; background: #3858b5; box-shadow: 0 0 8px rgba(56, 88, 181, 0.5); }
+
+/* =========================================================
+   Mission control bar
+   ========================================================= */
+
+.control {
+  padding: 3rem 2.5rem;
+  border-top: 1px solid var(--hull);
+  border-bottom: 1px solid var(--hull);
+  background: rgba(19, 26, 48, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.control-grid {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2rem;
+}
+
+.control-cell {
+  border-left: 1px solid var(--hull);
+  padding-left: 1.5rem;
+}
+
+.control-cell:first-child { border-left: none; }
+
+.control-cell .label {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--star-faint);
+  margin-bottom: 0.5rem;
+}
+
+.control-cell .value {
+  font-family: var(--f-serif);
+  font-size: 1.6rem;
+  color: var(--star);
+  line-height: 1.1;
+}
+
+.control-cell .value .accent { color: var(--gold); }
+
+.control-cell .delta {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  color: var(--ice);
+  margin-top: 0.3rem;
+}
+
+/* =========================================================
+   Planets grid
+   ========================================================= */
+
+.planets {
+  padding: 6rem 2.5rem;
+}
+
+.section-head {
+  max-width: 1300px;
+  margin: 0 auto 4rem;
+  text-align: center;
+}
+
+.section-head .label {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.section-head h2 {
+  font-family: var(--f-serif);
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.section-head h2 .italic { font-style: italic; color: var(--gold); }
+
+.section-head p {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--star-dim);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.planet-grid {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--hull);
+  border: 1px solid var(--hull);
+}
+
+.planet-card {
+  background: var(--space);
+  padding: 2rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  min-height: 28rem;
+}
+
+.planet-card:hover {
+  background: var(--deep);
+}
+
+.planet-card:hover .planet-art .body {
+  transform: scale(1.05);
+}
+
+.planet-num {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--star-faint);
+  text-transform: uppercase;
+}
+
+.planet-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  flex: 1;
+  position: relative;
+  min-height: 8rem;
+}
+
+.planet-art .body {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  flex-shrink: 0;
+}
+
+.planet-art .ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 150%;
+  height: 30%;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotateX(75deg);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Specific planet colors */
+.body-mercury { background: radial-gradient(circle at 30% 30%, #d8c8a8 0%, #9c8868 60%, #5e4e38 100%); }
+.body-venus { background: radial-gradient(circle at 30% 30%, #f8d878 0%, #c89848 50%, #886820 100%); }
+.body-earth { background: radial-gradient(circle at 30% 30%, #6ea8e0 0%, #4a78c0 40%, #2c4878 100%); }
+.body-mars { background: radial-gradient(circle at 30% 30%, #e8784a 0%, #b04020 50%, #682818 100%); }
+.body-jupiter {
+  background:
+    repeating-linear-gradient(180deg, #d8a878 0%, #d8a878 10%, #b88858 11%, #b88858 22%, #ecc888 23%, #ecc888 35%, #a87848 36%, #a87848 48%, #d8a878 49%, #d8a878 62%, #b88858 63%, #b88858 78%, #ecc888 79%, #ecc888 92%, #a87848 93%);
+  position: relative;
+}
+.body-jupiter::before {
+  content: '';
+  position: absolute;
+  top: 38%; left: 25%;
+  width: 25%; height: 15%;
+  background: radial-gradient(circle, #c84830 0%, #903020 70%, transparent 100%);
+  border-radius: 50%;
+}
+.body-saturn { background: radial-gradient(circle at 30% 30%, #f0d08c 0%, #c8a868 40%, #886848 100%); color: rgba(232, 200, 136, 0.7); }
+.body-uranus { background: radial-gradient(circle at 30% 30%, #a8e0e0 0%, #68b0c8 50%, #386890 100%); color: rgba(168, 224, 224, 0.5); }
+.body-neptune { background: radial-gradient(circle at 30% 30%, #4878d8 0%, #2858a8 50%, #182858 100%); color: rgba(72, 120, 216, 0.5); }
+
+.planet-art .moon {
+  position: absolute;
+  top: 20%;
+  right: 15%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #888;
+  opacity: 0.7;
+}
+
+.planet-name {
+  font-family: var(--f-serif);
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.planet-tagline {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--star-dim);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.planet-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hull);
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+}
+
+.planet-stats dt { color: var(--star-faint); letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.65rem; }
+.planet-stats dd { color: var(--star); }
+.planet-stats dd .accent { color: var(--ice); }
+
+/* =========================================================
+   Comparison strip / scale of distances
+   ========================================================= */
+
+.scale {
+  padding: 6rem 2.5rem;
+  border-top: 1px solid var(--hull);
+  border-bottom: 1px solid var(--hull);
+  background: rgba(10, 14, 31, 0.6);
+}
+
+.scale-content {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.scale-bar {
+  position: relative;
+  height: 200px;
+  margin: 4rem 0 2rem;
+  border-bottom: 1px solid var(--star-faint);
+}
+
+.scale-dot {
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  cursor: pointer;
+}
+
+.scale-dot::after {
+  content: attr(data-name);
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-45deg);
+  transform-origin: left bottom;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--star-dim);
+  white-space: nowrap;
+  letter-spacing: 0.1em;
+}
+
+.scale-dot::before {
+  content: attr(data-au);
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-mono);
+  font-size: 0.65rem;
+  color: var(--star-faint);
+  white-space: nowrap;
+  letter-spacing: 0.1em;
+}
+
+.scale-dot:hover::after { color: var(--gold); }
+
+/* =========================================================
+   Mission log / timeline
+   ========================================================= */
+
+.missions {
+  padding: 6rem 2.5rem;
+}
+
+.mission-list {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mission {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--hull);
+  align-items: baseline;
+  transition: padding 0.3s;
+}
+
+.mission:hover { padding-left: 1rem; background: rgba(31, 39, 72, 0.2); }
+.mission:first-child { border-top: 1px solid var(--hull); }
+
+.mission-year {
+  font-family: var(--f-mono);
+  color: var(--gold);
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+}
+
+.mission-name {
+  font-family: var(--f-serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.mission-name .agency {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--star-faint);
+  margin-top: 0.3rem;
+}
+
+.mission-target {
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--ice);
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+
+footer {
+  padding: 5rem 2.5rem 2rem;
+  border-top: 1px solid var(--hull);
+  background: var(--space);
+}
+
+.footer-grid {
+  max-width: 1300px;
+  margin: 0 auto 3rem;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  gap: 3rem;
+}
+
+.footer-brand h3 {
+  font-family: var(--f-serif);
+  font-size: 2.4rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.footer-brand h3 .italic { font-style: italic; color: var(--gold); }
+
+.footer-brand p {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--star-dim);
+  max-width: 22rem;
+  line-height: 1.6;
+}
+
+footer h4 {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+footer ul { list-style: none; }
+footer li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+footer a { color: var(--star-dim); transition: color 0.3s; }
+footer a:hover { color: var(--star); }
+
+.footer-bottom {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-top: 2rem;
+  border-top: 1px solid var(--hull);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--star-faint);
+}
+
+/* =========================================================
+   Planet page (planet.html)
+   ========================================================= */
+
+.planet-page {
+  padding: 8rem 2.5rem 4rem;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.planet-page-art {
+  position: sticky;
+  top: 7rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--hull);
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 30%, rgba(74, 109, 216, 0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 30% 70%, rgba(255, 122, 69, 0.06) 0%, transparent 60%),
+    var(--space);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.planet-page-art .planet-body {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f4d088 0%, #d8a868 30%, #8c6438 80%, #4a2c18 100%);
+  position: relative;
+  box-shadow:
+    inset -30px -30px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(216, 168, 104, 0.2);
+}
+
+.planet-page-art .planet-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0px,
+      transparent 12px,
+      rgba(0,0,0,0.15) 13px,
+      rgba(0,0,0,0.15) 22px,
+      rgba(255,255,255,0.08) 23px,
+      rgba(255,255,255,0.08) 32px);
+}
+
+.planet-page-art .red-spot {
+  position: absolute;
+  top: 50%;
+  left: 35%;
+  width: 18%;
+  height: 12%;
+  background: radial-gradient(ellipse, #c84830 0%, #803020 60%, transparent 100%);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.planet-page-art .label-tag {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 0.4rem 0.8rem;
+}
+
+.planet-page-art .coords {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--star-faint);
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--hull);
+}
+
+.planet-info .eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.planet-info h1 {
+  font-family: var(--f-serif);
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  font-weight: 400;
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
+}
+
+.planet-info h1 .italic { font-style: italic; color: var(--gold); }
+
+.planet-info .lede {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.35rem;
+  line-height: 1.6;
+  color: var(--star-dim);
+  margin-bottom: 2.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--hull);
+}
+
+.planet-info .data {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.planet-info .data-cell .k {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--star-faint);
+  margin-bottom: 0.3rem;
+}
+
+.planet-info .data-cell .v {
+  font-family: var(--f-serif);
+  font-size: 1.5rem;
+  color: var(--star);
+  line-height: 1.1;
+}
+
+.planet-info .data-cell .v .small {
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+  color: var(--star-dim);
+  display: block;
+  margin-top: 0.2rem;
+  letter-spacing: 0.1em;
+}
+
+.planet-info h2 {
+  font-family: var(--f-serif);
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 2.5rem 0 1rem;
+}
+
+.planet-info h2 .italic { font-style: italic; color: var(--gold); }
+
+.planet-info p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--star-dim);
+  margin-bottom: 1.2rem;
+}
+
+.planet-info .callout {
+  border-left: 2px solid var(--gold);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  background: rgba(240, 193, 74, 0.04);
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--star);
+}
+
+.planet-info .callout cite {
+  display: block;
+  font-family: var(--f-mono);
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 1rem;
+}
+
+.planet-info .moons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.planet-info .moons span {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--hull);
+  color: var(--star-dim);
+}
+
+.planet-info .moons span.notable {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 6rem; }
+  .orbit-stage { max-width: 480px; margin: 0 auto; }
+  .control-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .control-cell { border-left: none; padding-left: 0; }
+  .planet-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .planet-page { grid-template-columns: 1fr; gap: 3rem; padding-top: 6rem; }
+  .planet-page-art { position: static; }
+}
+
+@media (max-width: 640px) {
+  .nav { padding: 1rem 1.2rem; }
+  .nav-links { gap: 1.2rem; font-size: 0.65rem; }
+  .hero, .planets, .scale, .missions, .planet-page, .control { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .planet-grid { grid-template-columns: 1fr; }
+  .control-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+  .mission { grid-template-columns: 1fr; gap: 0.4rem; }
+  .planet-info .data { grid-template-columns: 1fr; }
+}
